@@ -1,0 +1,81 @@
+<html>
+	<head>
+		<title> Shift Escape </title>
+		
+			<style> canvas {width:100%, height: 100%} </style>
+		
+		<script src="js/three.js"></script>
+		<script src="js/jquery.js"></script>
+		
+		<script src="Grid/Tile.js"></script>	
+		<script src="Grid/Grid.js"></script>
+		<script src="Player/Player.js"></script>
+		
+	</head>
+	<body>	
+	
+		<script>
+		
+		var Game = function(){ this.grid = new Grid(8); }
+		
+		Game.prototype.init = function(){
+			this.renderer = new THREE.WebGLRenderer({antialias: true});
+      		this.renderer.setSize(800, 600);
+      		document.body.appendChild(this.renderer.domElement);			
+			this.renderer.setClearColorHex(0xEEEEEE, 1.0);
+      		this.renderer.clear();
+      		
+      		this.camera = new THREE.PerspectiveCamera(45, 4.0/3.0 , 1, 10000);
+			this.camera.position.z = 300;
+			
+			this.scene = new THREE.Scene();
+			
+			this.renderer.render(this.scene, this.camera);
+			
+			
+			this.ambient = new THREE.AmbientLight(0x202020);
+      		this.ambient.position.set( 170, 330, -160 );
+      		this.scene.add(this.ambient);
+      	
+      		this.litCube = new THREE.Mesh(
+        		new THREE.CubeGeometry(50, 15, 50),
+        		new THREE.MeshLambertMaterial({color: 0xC4CDD1}));
+      		this.litCube.position.y = 0;
+      		this.scene.add(this.litCube);
+      		
+		}
+		
+		Game.prototype.start = function(t){
+			var that = this;
+			this.camera.position.y = 150;
+			this.camera.lookAt(this.scene.position);
+			this.renderer.render(this.scene, this.camera);
+        	window.requestAnimationFrame(that.start, that.renderer.domElement);
+		}
+		
+		var t = new Date().getTime();
+		
+		var game = new Game();
+		game.init();
+		game.start(t);
+		
+		
+		
+		/*function animate(t) {
+        	// spin the camera in a circle
+        	//camera.position.x = Math.sin(t/1000)*300;
+        	var camera.position.y = 150;
+        	//camera.position.z = Math.cos(t/1000)*300;
+        	// you need to update lookAt every frame
+        	camera.lookAt(scene.position);
+        	// renderer automatically clears unless autoClear = false
+        	renderer.render(scene, camera);
+        	window.requestAnimationFrame(animate, renderer.domElement);
+      	}*/
+      	
+		
+		</script>	
+	</body>
+	
+	
+</html>
