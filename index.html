@@ -7,8 +7,8 @@
 		<script src="js/three.js"></script>
 		<script src="js/jquery.js"></script>
 			
-		<script src="Grid/Grid.js"></script>
 		<script src="Player/Player.js"></script>
+		<script src="Grid/Grid.js"></script>
 		
 	</head>
 	<body>	
@@ -25,6 +25,8 @@
 		}
 		
 		Game.prototype.init = function(){
+			var that = this;
+			
       		this.renderer.setSize(800, 600);
       		document.body.appendChild(this.renderer.domElement);			
 			this.renderer.setClearColorHex(0xEEEEEE, 1.0);
@@ -40,8 +42,41 @@
       		this.spot.position.set( 530, 350, 530 );
       		this.scene.add(this.spot);
       		
-      	
-
+      		this.grid.fillTile(3,2);
+      			
+      		
+      		
+      		//setup keyboard events
+      		this.keys = {};
+  			$('body').keydown(function(e) {
+    		if (e.which && that.keys[e.which] !== 'triggered') {
+    		  that.keys[e.which] = true;
+    		}
+  			});
+  			$('body').keyup(function(e) {
+    		if (e.which) {
+    		  that.keys[e.which] = false;
+    		}
+  			});
+		}
+		
+		Game.prototype.inputHandler = function(){
+			if(this.keys[38]===true){
+				this.keys[38] = "triggered";
+				this.grid.selector.shiftUp();
+			}
+			if(this.keys[40]===true){
+				this.keys[40] = "triggered";
+				this.grid.selector.shiftDown();
+			}
+			if(this.keys[37]===true){
+				this.keys[37] = "triggered";
+				this.grid.selector.shiftLeft();
+			}
+			if(this.keys[39]===true){
+				this.keys[39] = "triggered";
+				this.grid.selector.shiftRight();
+			}
 		}
 		
 		var game = new Game();
@@ -52,6 +87,7 @@
         	that.camera.position.y = 300 + Math.sin(t/10000)*50;
 			that.camera.lookAt(new THREE.Vector3(220, 0, 220));
 			that.renderer.render(that.scene, that.camera);
+			that.inputHandler();
         	window.requestAnimationFrame(start, that.renderer.domElement);
 		}
 		
