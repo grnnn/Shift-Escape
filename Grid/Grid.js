@@ -33,9 +33,11 @@ var Grid = function(size, scene){
 	
 	this.array = new Array();
 	
-	this.selector = new Selector(0, 0, this.scene);
+	this.selector = new Selector(1, 1, this.scene);
 	
 	this.shiftType = "h";
+	
+	this.player = new Player(4, 4, this.scene);
 	
 	this.init();
 	
@@ -63,10 +65,20 @@ Grid.prototype.fillTile = function(x, y){
 	this.array[x-1][y-1].fill();
 }
 
+Grid.prototype.canShift = function(dir){
+	if(dir === "horizontal"){
+		if(this.selector.y === this.player.y) return false;
+	}
+	if(dir === "vertical"){
+		if(this.selector.x === this.player.x) return false;
+	}
+	return true;
+}
+
 Grid.prototype.horizontalShift = function(){
 	this.shiftType = "horizontal";
 	
-	var vertPos = this.selector.y + 1;
+	var vertPos = this.selector.y;
 	
 	var temp = this.array[0][vertPos];
 	
@@ -79,7 +91,7 @@ Grid.prototype.horizontalShift = function(){
 Grid.prototype.verticalShift = function(){
 	this.shiftType = "vertical";
 	
-	var horPos = this.selector.x + 1;
+	var horPos = this.selector.x;
 	
 	var temp = this.array[horPos][0];
 	
@@ -94,6 +106,10 @@ Grid.prototype.animate = function(){
 	
 	if(this.shiftType === "horizontal") bool = this.animateh();
 	if(this.shiftType === "vertical") bool = this.animatev(); 
+	if(this.shiftType === "up") bool = this.player.moveUp();
+	if(this.shiftType === "down") bool = this.player.moveDown();
+	if(this.shiftType === "left") bool = this.player.moveLeft();
+	if(this.shiftType === "right") bool = this.player.moveRight();
 	
 	return bool;
 }
@@ -103,24 +119,33 @@ Grid.prototype.aToggle = false;
 
 Grid.prototype.animateh = function(){
 	
-	var vertPos = this.selector.y + 1;
+	var vertPos = this.selector.y;
 	
 	
 	if(this.tracker !== 0){
 		for(var i = 0; i < this.size; i++){
 			this.array[i][vertPos].cube.position.x -= 1;	
-			
+			if(this.array[i][vertPos].state === "filled"){
+				this.array[i][vertPos].fill.position.x -= 1;
+			}
 		}
 		this.tracker -= 1;
 	}
 	
 	if(this.tracker === 0){
 		this.array[this.size-1][vertPos].cube.position.y -= 10;
+		if(this.array[this.size-1][vertPos].state === "filled"){
+			this.array[this.size-1][vertPos].fill.position.y -= 10;
+		}
 	}
 	
 	if(this.array[this.size-1][vertPos].cube.position.y < -500){
 		this.array[this.size-1][vertPos].cube.position.y = 500;
 		this.array[this.size-1][vertPos].cube.position.x = 55*(this.size-1);
+		if(this.array[this.size-1][vertPos].state === "filled"){
+			this.array[this.size-1][vertPos].fill.position.y = 520;
+			this.array[this.size-1][vertPos].fill.position.x = 55*(this.size-1);
+		}
 		this.aToggle = true;
 	}
 	
@@ -134,23 +159,33 @@ Grid.prototype.animateh = function(){
 }
 
 Grid.prototype.animatev = function(){
-	var horPos = this.selector.x + 1;
+	var horPos = this.selector.x;
 	
 	
 	if(this.tracker !== 0){
 		for(var i = 0; i < this.size; i++){
 			this.array[horPos][i].cube.position.z -= 1;
+			if(this.array[horPos][i].state === "filled"){
+				this.array[horPos][i].fill.position.z -= 1;
+			}
 		}
 		this.tracker -= 1;
 	}
 	
 	if(this.tracker === 0){
 		this.array[horPos][this.size-1].cube.position.y -= 10;
+		if(this.array[horPos][this.size-1].state === "filled"){
+			this.array[horPos][this.size-1].fill.position.y -= 10;
+		}
 	}
 	
 	if(this.array[horPos][this.size-1].cube.position.y < -500){
 		this.array[horPos][this.size-1].cube.position.y = 500;
 		this.array[horPos][this.size-1].cube.position.z = 55*(this.size-1);
+		if(this.array[horPos][this.size-1].state === "filled"){
+			this.array[horPos][this.size-1].fill.position.y = 520;
+			this.array[horPos][this.size-1].fill.position.z = 55*(this.size-1);
+		}
 		this.aToggle = true;
 	}
 	
@@ -161,4 +196,24 @@ Grid.prototype.animatev = function(){
 	}
 	
 	return true;
+}
+
+Grid.prototype.canMove = function(dir){
+	if(dir === "up"){
+		if(this.player.y > 6 || this.array[this.player.x][this.player.y + 1].state === "filled") return false;
+	}
+	if(dir === "down"){
+		if(this.player.y < 1 || this.array[this.player.x][this.player.y - 1].state === "filled") return false;
+	}
+	if(dir === "left"){
+		if(this.player.x > 6 || this.array[this.player.x + 1][this.player.y].state === "filled") return false;
+	}
+	if(dir === "right"){
+		if(this.player.x < 1 || this.array[this.player.x - 1][this.player.y].state === "filled") return false;
+	}
+	return true;
+}
+
+Grid.prototype.setAnimation = function(dir){
+	this.shiftType = dir;
 }

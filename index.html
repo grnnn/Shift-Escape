@@ -64,7 +64,7 @@
 		
 		Game.prototype.inputHandler = function(){
 			var that = this;
-			var string = "up";
+			var string;
 			if(this.keys[38]===true){
 				string = "up";
 				if(this.grid.selector.canMove(string)){
@@ -97,15 +97,60 @@
 				}
 				
 			}
+			
+			if(this.keys[87]){
+				string = "up";
+				this.keys[87] = "triggered";
+				if(this.grid.canMove(string)){
+					this.grid.setAnimation(string);
+					this.animating = true;
+				}
+			}
+			if(this.keys[83]){
+				string = "down";
+				this.keys[83] = "triggered";
+				if(this.grid.canMove(string)){
+					this.grid.setAnimation(string);
+					this.animating = true;
+				}
+				
+			}
+			if(this.keys[65]){
+				string = "left";
+				this.keys[65] = "triggered";
+				if(this.grid.canMove(string)){
+					this.grid.setAnimation(string);
+					this.animating = true;
+				}
+				
+			}
+			if(this.keys[68]){
+				string = "right";
+				this.keys[68] = "triggered";
+				if(this.grid.canMove(string)){
+					this.grid.setAnimation(string);
+					this.animating = true;
+				}
+				
+			}
+			
 			if(this.keys[13]===true){ //horizontal shift
+				string = "horizontal"
 				this.keys[13] = "triggered";
-				this.grid.horizontalShift();
-				this.animating = true;
+				if(this.grid.canShift(string)){
+					this.grid.horizontalShift();
+					this.animating = true;
+				}
+				
 			}
 			if(this.keys[16]===true){ //vertical shift
+				string = "vertical";
 				this.keys[16] = "triggered";
-				this.grid.verticalShift();
-				this.animating = true;
+				if(this.grid.canShift(string)){
+					this.grid.verticalShift();
+					this.animating = true;
+				}
+				
 			}
 		}
 		
