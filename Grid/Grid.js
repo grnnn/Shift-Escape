@@ -26,6 +26,13 @@ Tile.prototype.fill = function(){
     this.scene.add(this.fill);
 }
 
+Tile.prototype.empty = function(){
+	this.state = "empty";
+	
+	this.scene.remove(this.fill);
+	
+	this.fill = null;
+}
 
 var Grid = function(size, scene){
 	this.size = size;
@@ -37,7 +44,9 @@ var Grid = function(size, scene){
 	
 	this.shiftType = "h";
 	
-	this.player = new Player(4, 4, this.scene);
+	this.player = new Player(5, 1, this.scene);
+	
+	this.count = 0;
 	
 	this.init();
 	
@@ -62,15 +71,17 @@ Grid.prototype.init = function(){
 }
 
 Grid.prototype.fillTile = function(x, y){
+
+	
 	this.array[x-1][y-1].fill();
 }
 
 Grid.prototype.canShift = function(dir){
 	if(dir === "horizontal"){
-		if(this.selector.y === this.player.y) return false;
+		if(this.selector.y === this.player.y || this.count === 0) return false;
 	}
 	if(dir === "vertical"){
-		if(this.selector.x === this.player.x) return false;
+		if(this.selector.x === this.player.x || this.count === 0) return false;
 	}
 	return true;
 }
@@ -86,6 +97,8 @@ Grid.prototype.horizontalShift = function(){
 		this.array[i][vertPos] = this.array[i+1][vertPos];
 	}
 	this.array[this.size-1][vertPos] = temp;
+	
+	this.count--;
 }
 
 Grid.prototype.verticalShift = function(){
@@ -99,6 +112,8 @@ Grid.prototype.verticalShift = function(){
 		this.array[horPos][i] = this.array[horPos][i+1];
 	}
 	this.array[horPos][this.size - 1] = temp;
+	
+	this.count--;
 }
 
 Grid.prototype.animate = function(){
@@ -216,4 +231,13 @@ Grid.prototype.canMove = function(dir){
 
 Grid.prototype.setAnimation = function(dir){
 	this.shiftType = dir;
+}
+
+Grid.prototype.clear = function(){
+	for(var i = 0; i < this.size; i++){
+		for(var j = 0; j < this.size; j++){
+			if(this.array[i][j].state === "filled") this.array[i][j].empty();
+		}
+	}
+	this.player.returnToStart();
 }

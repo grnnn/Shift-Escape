@@ -118,5 +118,12 @@ Player.prototype.moveRight = function(){
 	return true;
 }
 
-
+Player.prototype.returnToStart = function(){
+	this.x = 4;
+	this.y = 0;
+	
+	this.sphere.position.x = this.x*55;
+    this.sphere.position.y = 20;
+    this.sphere.position.z = this.y*55 - 2;
+}
 

@@ -10,6 +10,10 @@
 		<script src="Player/Player.js"></script>
 		<script src="Grid/Grid.js"></script>
 		
+		<script src="Levels/Level1.js"></script>
+		<script src="Levels/Level2.js"></script>
+		<script src="Levels/Level3.js"></script>
+		
 	</head>
 	<body>	
 	
@@ -24,6 +28,10 @@
 			this.grid = new Grid(8, this.scene); 
 			
 			this.animating = false;
+			
+			this.levelStack = new Array();
+			this.levelNumber = 1;
+			this.count;
 		}
 		
 		Game.prototype.init = function(){
@@ -44,8 +52,21 @@
       		this.spot.position.set( 530, 350, 530 );
       		this.scene.add(this.spot);
       		
-      		this.grid.fillTile(3,2);
-      			
+			
+			this.text2 = document.createElement('div');
+			this.text2.style.position = 'absolute';
+			this.text2.style.width = 100;
+			this.text2.style.height = 24;
+			this.text2.style.font = "30px Arial";
+			this.text2.style.top = 10 + 'px';
+			this.text2.style.left = 10 + 'px';
+			document.body.appendChild(that.text2);
+      		
+      		this.levelStack.push(level1);
+      		
+      		this.loadLevel(this.levelNumber);
+      		
+      		
       		
       		
       		//setup keyboard events
@@ -154,12 +175,29 @@
 			}
 		}
 		
+		Game.prototype.loadLevel = function(num){
+			var array = this.levelStack[num-1];
+			
+			this.grid.clear();
+			
+			for(var i = 0; i < array.length; i++){
+				this.grid.fillTile(array[i][0], array[i][1]);
+			}
+			
+			this.grid.count = array.count;
+		}
+		
+		Game.prototype.updateText = function(){
+			this.text2.innerHTML = "Shifts: " + this.grid.count;
+			
+		}
+		
 		var game = new Game();
 		
 		function start(t){
 			var that = game;
 			that.camera.position.x = 120 + Math.sin(t/10000)*200;
-        	that.camera.position.y = 300 + Math.sin(t/10000)*50;
+        	that.camera.position.y = 450 + Math.sin(t/11000)*50;
 			that.camera.lookAt(new THREE.Vector3(220, 0, 220));
 			that.renderer.render(that.scene, that.camera);
 			if(!that.animating) {
@@ -168,6 +206,7 @@
 			else {
 				if(!that.grid.animate()) that.animating = false;
 			}
+			that.updateText();
         	window.requestAnimationFrame(start, that.renderer.domElement);
 		}
 		
@@ -182,6 +221,70 @@
       	
 		
 		</script>	
+		
+		
+		<canvas id="myCanvas" width="200" height="600" style="border:1px solid #000000;">
+			</canvas>
+		
+		<script>
+			c = document.getElementById("myCanvas");
+      		
+      		controls = c.getContext("2d");
+      		controls.font = "30px Arial";
+      		controls.fillText("Controls:",10,40);
+      		
+      		movement = c.getContext("2d");
+      		movement.font = "20px Arial";
+      		movement.fillText("Movement: WASD",10,65);
+      		
+      		selector = c.getContext("2d");
+      		selector.font = "20px Arial";
+      		selector.fillText("Selector: arrow keys", 10, 90);
+      		
+      		hShift =  c.getContext("2d");
+      		hShift.font = "20px Arial";
+      		hShift.fillText("Right Shift: Enter", 10, 115);
+      		
+      		vShift =  c.getContext("2d");
+      		vShift.font = "20px Arial";
+      		vShift.fillText("Down Shift: Shift", 10, 140);
+      		
+      		goal =  c.getContext("2d");
+      		goal.font = "30px Arial";
+      		goal.fillText("How to play:", 10, 200);
+      		
+      		instructions1 =  c.getContext("2d");
+      		instructions1.font = "20px Arial";
+      		instructions1.fillText("Use the selector to", 10, 225);
+      		instructions2 =  c.getContext("2d");
+      		instructions2.font = "20px Arial";
+      		instructions2.fillText("shift the current row", 10, 250);
+      		instructions3 =  c.getContext("2d");
+      		instructions3.font = "20px Arial";
+      		instructions3.fillText("or column rightward", 10, 275);
+      		instructions4 =  c.getContext("2d");
+      		instructions4.font = "20px Arial";
+      		instructions4.fillText("or downward.", 10, 300);
+      		
+      		instructions5 =  c.getContext("2d");
+      		instructions5.font = "20px Arial";
+      		instructions5.fillText("To beat a level, move", 10, 325);
+      		instructions6 =  c.getContext("2d");
+      		instructions6.font = "20px Arial";
+      		instructions6.fillText("off of the top edge", 10, 350);
+      		instructions7 =  c.getContext("2d");
+      		instructions7.font = "20px Arial";
+      		instructions7.fillText("of the grid.", 10, 375);
+      		
+      		instructions8 =  c.getContext("2d");
+      		instructions8.font = "20px Arial";
+      		instructions8.fillText("You get a limited", 10, 400);
+      		instructions9 =  c.getContext("2d");
+      		instructions9.font = "20px Arial";
+      		instructions9.fillText("number of shifts.", 10, 425);
+      		
+		</script>
+		
 	</body>
 	
 	
