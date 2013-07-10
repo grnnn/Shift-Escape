@@ -12,7 +12,7 @@ var Tile = function(scene){
 	this.scene = scene;
 }
 
-Tile.prototype.fill = function(){
+Tile.prototype.block = function(){
 	this.state = "filled";
 	
 	this.fill = new THREE.Mesh(
@@ -70,10 +70,8 @@ Grid.prototype.init = function(){
 	
 }
 
-Grid.prototype.fillTile = function(x, y){
-
-	
-	this.array[x-1][y-1].fill();
+Grid.prototype.fillTile = function(x, y){	
+	this.array[x-1][y-1].block();
 }
 
 Grid.prototype.canShift = function(dir){
@@ -240,4 +238,9 @@ Grid.prototype.clear = function(){
 		}
 	}
 	this.player.returnToStart();
+}
+
+Grid.prototype.checkWin = function(){
+	if(this.player.y === 7) return true;
+	return false;
 }

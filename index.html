@@ -32,6 +32,8 @@
 			this.levelStack = new Array();
 			this.levelNumber = 1;
 			this.count;
+			
+			this.won = false;
 		}
 		
 		Game.prototype.init = function(){
@@ -52,6 +54,14 @@
       		this.spot.position.set( 530, 350, 530 );
       		this.scene.add(this.spot);
       		
+      		this.text = document.createElement('div');
+			this.text.style.position = 'absolute';
+			this.text.style.width = 100;
+			this.text.style.height = 24;
+			this.text.style.font = "50px Arial";
+			this.text.style.top = 10 + 'px';
+			this.text.style.left = 370 + 'px';
+			document.body.appendChild(that.text);
 			
 			this.text2 = document.createElement('div');
 			this.text2.style.position = 'absolute';
@@ -63,6 +73,8 @@
 			document.body.appendChild(that.text2);
       		
       		this.levelStack.push(level1);
+      		this.levelStack.push(level2);
+      		this.levelStack.push(level3);
       		
       		this.loadLevel(this.levelNumber);
       		
@@ -173,9 +185,20 @@
 				}
 				
 			}
+			
+			if(this.keys[82]){
+				this.keys[82] = "triggered";
+				this.loadLevel(this.levelNumber);
+			}
 		}
 		
 		Game.prototype.loadLevel = function(num){
+			if(num - 1 === this.levelStack.length){
+				this.win();
+				this.won = true;
+				return;
+			}
+			
 			var array = this.levelStack[num-1];
 			
 			this.grid.clear();
@@ -188,25 +211,48 @@
 		}
 		
 		Game.prototype.updateText = function(){
+			this.text.innerHTML = "Level:" + this.levelNumber;
 			this.text2.innerHTML = "Shifts: " + this.grid.count;
 			
+		}
+		
+		Game.prototype.win = function(){
+			var that = this;
+			this.text3 = document.createElement('div');
+			this.text3.style.position = 'absolute';
+			this.text3.style.width = 115;
+			this.text3.style.height = 75;
+			this.text3.style.backgroundColor = "white";
+			this.text3.style.font = "70px Arial";
+			this.text3.style.top = 280 + 'px';
+			this.text3.style.left = 350 + 'px';
+			this.text3.innerHTML = "Fin.";
+			document.body.appendChild(that.text3);
+			this.levelNumber--;
 		}
 		
 		var game = new Game();
 		
 		function start(t){
 			var that = game;
-			that.camera.position.x = 120 + Math.sin(t/10000)*200;
-        	that.camera.position.y = 450 + Math.sin(t/11000)*50;
-			that.camera.lookAt(new THREE.Vector3(220, 0, 220));
-			that.renderer.render(that.scene, that.camera);
-			if(!that.animating) {
-				that.inputHandler();
+			if(!that.won){
+				that.camera.position.x = 120 + Math.sin(t/10000)*200;
+        		that.camera.position.y = 450 + Math.sin(t/11000)*50;
+				that.camera.lookAt(new THREE.Vector3(220, 0, 220));
+				that.renderer.render(that.scene, that.camera);
+				if(!that.animating) {
+					that.inputHandler();
+				}
+				else {
+					if(!that.grid.animate()) that.animating = false;
+				}
+				if(that.grid.checkWin()){
+					that.levelNumber++;
+					that.loadLevel(that.levelNumber);
+				} 
+				that.updateText();
 			}
-			else {
-				if(!that.grid.animate()) that.animating = false;
-			}
-			that.updateText();
+			
         	window.requestAnimationFrame(start, that.renderer.domElement);
 		}
 		
@@ -249,39 +295,44 @@
       		vShift.font = "20px Arial";
       		vShift.fillText("Down Shift: Shift", 10, 140);
       		
+      		reset =  c.getContext("2d");
+      		reset.font = "20px Arial";
+      		reset.fillText("Reset Level: R", 10, 165);
+      		
+      		
       		goal =  c.getContext("2d");
       		goal.font = "30px Arial";
-      		goal.fillText("How to play:", 10, 200);
+      		goal.fillText("How to play:", 10, 225);
       		
       		instructions1 =  c.getContext("2d");
       		instructions1.font = "20px Arial";
-      		instructions1.fillText("Use the selector to", 10, 225);
+      		instructions1.fillText("Use the selector to", 10, 250);
       		instructions2 =  c.getContext("2d");
       		instructions2.font = "20px Arial";
-      		instructions2.fillText("shift the current row", 10, 250);
+      		instructions2.fillText("shift the current row", 10, 275);
       		instructions3 =  c.getContext("2d");
       		instructions3.font = "20px Arial";
-      		instructions3.fillText("or column rightward", 10, 275);
+      		instructions3.fillText("or column rightward", 10, 300);
       		instructions4 =  c.getContext("2d");
       		instructions4.font = "20px Arial";
-      		instructions4.fillText("or downward.", 10, 300);
+      		instructions4.fillText("or downward.", 10, 325);
       		
       		instructions5 =  c.getContext("2d");
       		instructions5.font = "20px Arial";
-      		instructions5.fillText("To beat a level, move", 10, 325);
+      		instructions5.fillText("To beat a level, move", 10, 350);
       		instructions6 =  c.getContext("2d");
       		instructions6.font = "20px Arial";
-      		instructions6.fillText("off of the top edge", 10, 350);
+      		instructions6.fillText("off of the top edge", 10, 375);
       		instructions7 =  c.getContext("2d");
       		instructions7.font = "20px Arial";
-      		instructions7.fillText("of the grid.", 10, 375);
+      		instructions7.fillText("of the grid.", 10, 400);
       		
       		instructions8 =  c.getContext("2d");
       		instructions8.font = "20px Arial";
-      		instructions8.fillText("You get a limited", 10, 400);
+      		instructions8.fillText("You get a limited", 10, 425);
       		instructions9 =  c.getContext("2d");
       		instructions9.font = "20px Arial";
-      		instructions9.fillText("number of shifts.", 10, 425);
+      		instructions9.fillText("number of shifts.", 10, 450);
       		
 		</script>
 		
