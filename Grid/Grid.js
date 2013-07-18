@@ -1,3 +1,17 @@
+var vertexShaderText = $('#cube-vertex-shader').text();
+var fragmentShaderText = $('#cube-fragment-shader').text();
+
+var BlockerMaterial = new THREE.ShaderMaterial({
+    uniforms: { 
+      'uBeatTime': { type: 'f', value: 0.0 },
+      'ran1': { type: 'f', value: 0.0 },
+      'ran2': { type: 'f', value: 0.0 },
+      'ran3': { type: 'f', value: 0.0 },
+    },
+    vertexShader: vertexShaderText,
+    fragmentShader: fragmentShaderText
+});
+
 var Tile = function(scene){
 	this.cube = new THREE.Mesh(
         		new THREE.CubeGeometry(50, 15, 50),
@@ -9,19 +23,28 @@ var Tile = function(scene){
     
     scene.add(this.cube);
 	
+	this.newBlockerMaterial;
+	
 	this.scene = scene;
 }
 
 Tile.prototype.block = function(){
 	this.state = "filled";
 	
+	this.newBlockerMaterial = BlockerMaterial.clone();
+	this.newBlockerMaterial.uniforms['ran1'].value = Math.random();
+	this.newBlockerMaterial.uniforms['ran2'].value = Math.random();
+	this.newBlockerMaterial.uniforms['ran3'].value = Math.random();
+	
 	this.fill = new THREE.Mesh(
         		new THREE.CubeGeometry(30, 40, 30),
-        		new THREE.MeshLambertMaterial({color: 0xC7162B}));
+        		this.newBlockerMaterial);
         		
     this.fill.position.x = this.cube.position.x;
     this.fill.position.z = this.cube.position.z;
     this.fill.position.y = 20;
+    
+    
     
     this.scene.add(this.fill);
 }
@@ -32,6 +55,10 @@ Tile.prototype.empty = function(){
 	this.scene.remove(this.fill);
 	
 	this.fill = null;
+}
+
+Tile.prototype.updateBeat = function(beat){
+	this.newBlockerMaterial.uniforms['uBeatTime'].value = beat;
 }
 
 var Grid = function(size, scene){
@@ -243,4 +270,12 @@ Grid.prototype.clear = function(){
 Grid.prototype.checkWin = function(){
 	if(this.player.y === 7) return true;
 	return false;
+}
+
+Grid.prototype.updateBeats = function(beat){
+	for(var i = 0; i < this.size; i++){
+		for(var j = 0; j < this.size; j++){
+			if(this.array[i][j].state === "filled") this.array[i][j].updateBeat(beat);
+		}
+	}
 }

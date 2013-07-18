@@ -1,21 +1,63 @@
 <html>
 	<head>
-		<title> Shift Escape </title>
+		<title> Shift Escape w/ BEATS</title>
 		
-			<style> canvas {width:100%, height: 100%} </style>
+		<style> canvas {width:100%, height: 100%} </style>
 		
 		<script src="js/three.js"></script>
 		<script src="js/jquery.js"></script>
-			
-		<script src="Player/Player.js"></script>
-		<script src="Grid/Grid.js"></script>
+		
+		<script src="js/CopyShader.js"></script>
+		<script src="js/EffectComposer.js"></script>
+		<script src="js/MaskPass.js"></script>
+		<script src="js/RenderPass.js"></script>
+		<script src="js/ShaderPass.js"></script>
 		
 		<script src="Levels/Level1.js"></script>
 		<script src="Levels/Level2.js"></script>
 		<script src="Levels/Level3.js"></script>
+		<script src="Levels/Level4.js"></script>
 		
 	</head>
 	<body>	
+		
+		<script id='cube-vertex-shader' type='x-shader/x-vertex'>
+			varying vec3 vNormal;
+			uniform float uBeatTime;
+			uniform float ran1;
+			uniform float ran2;
+			uniform float ran3;
+
+			void main() {
+				float tval = abs(sin(uBeatTime * (ran1+1.0) * (ran2+1.0) * (ran3+1.0) * 3.14159));
+				vNormal = normalMatrix * vec3(normal);
+				gl_Position = projectionMatrix *
+							  modelViewMatrix *
+                			  vec4((0.8 + 0.2 * tval) * position, 1.0);
+			}
+		</script>
+		
+		<script id='cube-fragment-shader' type='x-shader/x-fragment'>
+			varying vec3 vNormal;
+			uniform float uBeatTime;
+			uniform float ran1;
+			uniform float ran2;
+			uniform float ran3;
+	
+			void main() {
+				vec3 light = vec3(1.0, 1.0, 1.0);
+				light = normalize(light);
+				vec3 nvNormal = normalize(vNormal);
+				float prod = max(0.0, dot(nvNormal, light));
+				float tval = abs(cos(uBeatTime * 3.14159));
+				gl_FragColor = vec4(prod*ran1, tval*ran2, ran3, 1.0);
+			}
+		</script>
+		
+	
+		<script src="Player/Player.js"></script>
+		<script src="Grid/Grid.js"></script>
+	
 	
 		<script>
 		
@@ -75,6 +117,7 @@
       		this.levelStack.push(level1);
       		this.levelStack.push(level2);
       		this.levelStack.push(level3);
+      		this.levelStack.push(level4);
       		
       		this.loadLevel(this.levelNumber);
       		
@@ -251,6 +294,7 @@
 					that.loadLevel(that.levelNumber);
 				} 
 				that.updateText();
+				that.grid.updateBeats(t/1000);
 			}
 			
         	window.requestAnimationFrame(start, that.renderer.domElement);
